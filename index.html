@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="js/pixi.min.js"></script>
+    <script>
+
+    let app;
+    let player;
+    let block;
+    let keys = {};
+    let keysDiv;
+    let gameSong;
+    let jumpSound;
+    let chargeSound;
+    let playerSpeedY = 0;
+    let jumping = false;
+
+
+    window.onload = function() {
+        app = new PIXI.Application(
+            {
+                width: 1424,
+                height: 500,
+                backgroundColor: 0xAAAAAA
+            }
+        );
+
+        document.body.appendChild(app.view);
+
+        //Background Music
+        gameSong = new Audio("Music/Maan Track.wav");
+        gameSong.volume = 0.9;
+        gameSong.loop = true;
+
+        
+
+        //Player object
+        player = new PIXI.Sprite.from("Images/Player.png");
+        player.x = app.view.width / 2;
+
+        app.stage.addChild(player);
+
+        //Jumpsound
+        jumpSound = new Audio("Sounds/JumpSound.wav");
+
+
+        //Chargesound
+        chargeSound = new Audio("Sounds/ChargeSound.wav");
+    
+        //Block object
+        block = new PIXI.Sprite.from("Images/Block1.png");
+        block.x = 0;
+        block.y = 456;
+        block.width = app.view.width;
+
+        app.stage.addChild(block);
+
+        //Keyboard event handlers
+        window.addEventListener("keydown", keysDown);
+        window.addEventListener("keyup", keysUp);
+
+        app.ticker.add(gameLoop);
+
+        keysDiv = document.querySelector("#keys");
+    }
+
+    function keysDown(e) {
+        keys[e.keyCode] = true;
+    }
+
+    function keysUp(e) {
+        keys[e.keyCode] = false;
+    }
+
+    function gameLoop() {
+
+        gameSong.play();
+
+        player.y += playerSpeedY;
+
+        if (player.y + player.height > block.y) {
+
+            player.y = block.y - player.height;
+            playerSpeedY = 0;
+
+            jumping = false;
+            doubleJumping = false;
+
+        } else {
+            playerSpeedY ++;
+        }
+        
+
+        // W and Spacebar
+        if (keys["32"] || keys["87"]) {
+
+            if (!jumping) {
+                playerSpeedY -= 24;
+                jumpSound.play();
+                player.height = 44;
+                
+                jumping = true;
+            }
+        } else {
+            jumpSound.volume = 1;
+            player.heigh = 44;
+        }
+
+        // A
+        if (keys["65"]) {
+            player.x -= 8;
+            if (keys["83"]) {
+                player.x -= 10;
+            }
+        }
+
+        // S
+        if (keys["83"]) {
+
+            playerSpeedY += 5;
+            player.height = 22;
+            chargeSound.play();
+            setTimeout(function(){
+                chargeSound.pause();
+                chargeSound.volume = 0;
+            }, 300); 
+        } else {
+            player.height = 44;
+            chargeSound.volume = 0.3;
+        }
+
+        // D
+        if (keys["68"]) {
+            player.x += 8;
+            if (keys["83"]) {
+                player.x += 10;
+            }
+        }
+    }
+
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
